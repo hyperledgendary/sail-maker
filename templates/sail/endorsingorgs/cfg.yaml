@@ -1,0 +1,24 @@
+name: Endorsing Organization
+description:
+  Create the playbooks and vars for all the endorsing orgs
+parts:
+  - name: Variables
+    template: org-vars.yaml.njk
+    filename: 'org{{name}}-vars.yaml'
+    filter: >
+      [
+        network.organizations[peers]
+      ]
+  - name: Variables
+    template: 'api{{name}}_config.yaml.njk'
+    filter: >
+      [
+        network.organizations[peers]
+      ]
+  - name: Playbook
+    template: endorsingorgs.yaml.njk
+    filename: 'endorsing-orgs-pb.yaml'
+    filter: >
+      [
+        {'_':network.organizations[peers]}
+      ]      

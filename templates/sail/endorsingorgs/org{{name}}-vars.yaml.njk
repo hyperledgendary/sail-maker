@@ -1,0 +1,21 @@
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+api_endpoint: http://test-network-hlf-console-console.localho.st
+api_authtype: basic
+api_key: k6haj2feLBO3YCh7
+api_secret: 2qy3q4vhyq8_7RZKlkpr9btUqQ1I6Ae0
+ca_admin_enrollment_id: admin
+ca_admin_enrollment_secret: adminpw
+organization_admin_enrollment_id: {{name}}admin
+organization_admin_enrollment_secret: {{name}}adminpw
+peer_enrollment_id: {{name}}peer
+peer_enrollment_secret: {{name}}peerpw
+application_enrollment_id: {{name}}app
+application_enrollment_secret: {{name}}apppw
+application_enrollment_type: client
+application_max_enrollments: 10
+{{name}}_ca_name: "{{name}} CA"
+{{name}}_peer_name: "{{name}} Peer"
+wait_timeout: 600

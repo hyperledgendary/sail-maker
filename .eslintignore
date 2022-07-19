@@ -3,6 +3,7 @@ node_modules
 
 # don't lint build output (make sure it's set to your correct build folder name)
 dist
+lib
 
 # don't lint nyc coverage output
 coverage
@@ -10,3 +11,4 @@ coverage
 facade-14
 
 src/**/*.js
+out
