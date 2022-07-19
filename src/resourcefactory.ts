@@ -42,7 +42,7 @@ export default class ResourceFactory {
 
         this.jsonData = load(fs.readFileSync(this.resolvedFilename, 'utf8'));
 
-        this.templateRoot = path.join(__dirname, '..', 'templates', config.template);
+        this.templateRoot = path.join(__dirname, 'templates', config.template);
         logger.info(`Using the template root at ${this.templateRoot}`);
         if (!fs.existsSync(this.templateRoot)) {
             throw new Error(`Unknown template::${this.templateRoot}`);

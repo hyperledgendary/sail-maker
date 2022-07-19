@@ -1,17 +1,21 @@
 {
-  "name": "sail-maker",
-  "version": "0.0.12",
+  "name": "@hyperledgendary/sail-maker",
+  "version": "0.0.1",
   "description": "",
   "files": [
     "lib/**/*"
   ],
+  "bin": {
+    "sailmaker": "./lib/cli.js"
+  },
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
     "clean": "rimraf lib",
     "format": "prettier --write \"{src,test}/**/*.ts\"",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
-    "build": "npm run format && npm run clean && npm run lint && echo Using TypeScript && tsc --version && tsc --pretty && npm link",
+    "build": "npm run format && npm run clean && npm run lint && echo Using TypeScript && tsc --version && tsc --pretty",
+    "postbuild": "cp -r templates lib && npm pack",
     "release": "standard-version",
     "test": "jest"
   },
@@ -43,6 +47,7 @@
     "typescript": "^4.3.5"
   },
   "dependencies": {
+    "@hyperledgendary/sail-maker": "file:hyperledgendary-sail-maker-0.0.1.tgz",
     "@types/pino": "^7.0.5",
     "@types/source-map-support": "^0.5.4",
     "chalk": "^4.1.2",
