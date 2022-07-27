@@ -7,9 +7,10 @@ import fs = require('fs');
 
 import jsonata from 'jsonata';
 import * as mkdirp from 'mkdirp';
-import { render, configure, renderString } from 'nunjucks';
-import path = require('path');
 
+import { render, configure, renderString } from 'nunjucks';
+
+import path = require('path');
 import { load } from 'js-yaml';
 
 import { logger } from './logger';
@@ -25,7 +26,7 @@ interface TemplateCfg {
 /**
  * Resource Factory
  *
- * Create an instance with an IConfig object
+ *
  * Then call start() to produce the documentation
  */
 export default class ResourceFactory {
@@ -36,7 +37,21 @@ export default class ResourceFactory {
     private outputRoot: string;
     private templateName: string;
 
-    public constructor(config: Config) {
+    /* Builder method to create an configured instance
+     */
+    static async create(config: Config): Promise<ResourceFactory> {
+        const rf = new ResourceFactory(config);
+        await rf.setup();
+        return rf;
+    }
+
+    /**
+     * Check the local of the input file, location of the output files
+     * and create the directories if needed
+     *
+     * @param config
+     */
+    private constructor(config: Config) {
         this.resolvedFilename = path.resolve(config.input);
         logger.info(`Using metadata file ${this.resolvedFilename}`);
 
@@ -57,6 +72,9 @@ export default class ResourceFactory {
         this.subTemplateCfgs = [];
     }
 
+    /**
+     * For the given tempalte set, look for all sub-directories
+     */
     public async setup(): Promise<void> {
         logger.info('Setting up the templates');
         const dir = await fs.promises.opendir(this.templateRoot);
@@ -67,6 +85,13 @@ export default class ResourceFactory {
         }
     }
 
+    /**
+     * Load the cfg.yaml for each subtemplate, create the njk template engine with additionla
+     * filters.
+     *
+     * @param inputpath
+     * @returns
+     */
     private async createSubTemplate(inputpath: string): Promise<TemplateCfg | undefined> {
         // Loop through all the files in the temp directory
         const inputCfgFile = path.join(inputpath, 'cfg.yaml');
@@ -111,7 +136,8 @@ export default class ResourceFactory {
         return { cfg, env, outputDir, data: this.jsonData };
     }
 
-    /** Starts the factory generating output based on the template configuration
+    /**
+     * Starts the factory generating output based on the template configuration
      *
      */
     public async start(): Promise<void> {
@@ -121,19 +147,24 @@ export default class ResourceFactory {
     }
 
     /** For each part in the configuration, evaluate the JSONATA on the
-     * input data, and pass that to the templte engine
+     * input data, and pass that to the template engine
      */
     private async part(templateCfg: TemplateCfg): Promise<void> {
         const parts = templateCfg.cfg.parts;
-        for (let x = 0; x < parts.length; x++) {
-            const step = parts[x];
+
+        // todo: change this loop to a better foreach
+        parts.forEach((step: any) => {
+            // evaluate the JSONata against the input data to get the context needed
+
             const expression = jsonata(step['filter']);
             const result = expression.evaluate(templateCfg.data);
+
+            // Assuming this is an array, iterate over the outputs
             console.log(result);
-            // iterate over the results
             result.forEach((action: any) => {
                 const templateFile = step.template;
-                const outputFilename = path.join(templateCfg.outputDir, renderString(templateFile, action));
+
+                const outputFilename = path.join(templateCfg.outputDir, renderString(step.filename, action));
 
                 // writeout the data as well for debug purposes
                 // fs.writeFileSync(path.join(this.output, `data-${action._filename}.json`), JSON.stringify(action._data));
@@ -144,6 +175,6 @@ export default class ResourceFactory {
                 logger.info(`Writing output file ${outputFilename}`);
                 fs.writeFileSync(`${outputFilename}`, output);
             });
-        }
+        });
     }
 }

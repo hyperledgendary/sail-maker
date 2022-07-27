@@ -8,9 +8,9 @@ sourceMapSupport.install();
 
 import * as yargs from 'yargs';
 import Config from './config';
-// import ConversionFactory from './conversionfactory';
-// import Factory from './factory';
+
 import ResourceFactory from './resourcefactory';
+
 import { logger } from './logger';
 import { readFileSync } from 'fs';
 import * as path from 'path';
@@ -32,6 +32,11 @@ const results: any = yargs
             demandOption: true,
             describe: 'Directory files to be written to (will be created if does not exist)',
             requiresArg: true,
+        },
+        force: {
+            type: 'boolean',
+            default: 'false',
+            describe: 'Force the outputdirectory to be cleaned if it has contents',
         },
         template: {
             alias: 't',
@@ -57,10 +62,12 @@ const config: Config = {
 const main = async (config: Config) => {
     logger.info(`v${version}`);
     logger.info(`${JSON.stringify(config)}`);
-    const rf = new ResourceFactory(config);
 
-    await rf.setup();
+    // note in the resource generator, there is also a 'ConverterFactory' that
+    // will allow input formats that are not JSON/YAML to be converted. Eg protobuf
+    const rf = await ResourceFactory.create(config);
 
+    // start processing
     await rf.start();
 };
 

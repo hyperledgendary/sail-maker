@@ -10,7 +10,8 @@ parts:
         network.organizations[peers]
       ]
   - name: Variables
-    template: 'api{{name}}_config.yaml.njk'
+    template: 'api_config.yaml.njk'
+    filename: 'api{{name}}_config.yaml.njk'
     filter: >
       [
         network.organizations[peers]
@@ -20,5 +21,5 @@ parts:
     filename: 'endorsing-orgs-pb.yaml'
     filter: >
       [
-        {'_':network.organizations[peers]}
-      ]      
+        { "_": network.organizations[peers] }
+      ]
