@@ -44,6 +44,15 @@ const results: any = yargs
             describe: 'The name of the template category to process the metadata ',
             requiresArg: true,
         },
+        'template-dir': {
+            alias: '',
+            default: path.resolve(process.cwd(), 'templates'),
+            describe: `The directory containing the templates, default is CWD ${path.resolve(
+                process.cwd(),
+                'templates',
+            )}`,
+            requiresArg: true,
+        },
     })
     .help()
     .wrap(null)
@@ -57,6 +66,8 @@ const config: Config = {
     input: results.file,
     output: results.outputdir,
     template: results.template,
+    templateDir: results['template-dir'],
+    force: results.force,
 };
 
 const main = async (config: Config) => {

@@ -6,7 +6,7 @@
 import fs = require('fs');
 
 import jsonata from 'jsonata';
-import * as mkdirp from 'mkdirp';
+import mkdirp from 'mkdirp';
 
 import { render, configure, renderString } from 'nunjucks';
 
@@ -36,6 +36,7 @@ export default class ResourceFactory {
     private subTemplateCfgs: TemplateCfg[];
     private outputRoot: string;
     private templateName: string;
+    private force: boolean;
 
     /* Builder method to create an configured instance
      */
@@ -57,25 +58,49 @@ export default class ResourceFactory {
 
         this.jsonData = load(fs.readFileSync(this.resolvedFilename, 'utf8'));
 
-        this.templateRoot = path.join(__dirname, 'templates', config.template);
+        this.templateRoot = path.join(config.templateDir, config.template);
         logger.info(`Using the template root at ${this.templateRoot}`);
         if (!fs.existsSync(this.templateRoot)) {
             throw new Error(`Unknown template::${this.templateRoot}`);
         }
 
-        this.outputRoot = path.join(config.output, config.template);
-        logger.info(`Using the output directory of ${this.outputRoot}`);
-
+        this.outputRoot = path.resolve(config.output);
         this.templateName = config.template;
-        // todo create it here
-
+        this.force = config.force;
         this.subTemplateCfgs = [];
+    }
+
+    private async isDirEmpty(): Promise<boolean> {
+        return fs.promises.readdir(this.outputRoot).then((files) => {
+            return files.length === 0;
+        });
     }
 
     /**
      * For the given tempalte set, look for all sub-directories
      */
     public async setup(): Promise<void> {
+        logger.info(`Using the output directory of ${this.outputRoot}`);
+        logger.info(`Using the output directory of ${this.outputRoot}`);
+
+        const exists = fs.existsSync(this.outputRoot);
+        if (!exists) {
+            logger.info('Creating output dir');
+            await mkdirp(this.outputRoot);
+        } else {
+            const empty = await this.isDirEmpty();
+            logger.info(`${empty}`);
+            if (empty === false) {
+                if (this.force === true) {
+                    logger.info('Removing contents');
+                    fs.rmSync(this.outputRoot, { recursive: true, force: true });
+                } else {
+                    logger.info('Directory not empty');
+                    throw new Error(`${this.outputRoot} is not empty, use --force to overwrite`);
+                }
+            }
+        }
+
         logger.info('Setting up the templates');
         const dir = await fs.promises.opendir(this.templateRoot);
         for await (const dirent of dir) {

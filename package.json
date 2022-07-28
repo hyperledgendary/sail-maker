@@ -15,13 +15,13 @@
     "format": "prettier --write \"{src,test}/**/*.ts\"",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
     "build": "npm run format && npm run clean && npm run lint && echo Using TypeScript && tsc --version && tsc --pretty",
-    "postbuild": "cp -r templates lib && npm pack",
+    "postbuild": "npm pack",
     "release": "standard-version",
     "test": "jest"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ampretia/onvif-mqtt"
+    "url": "https://github.com/ampretia/sail-maker"
   },
   "keywords": [],
   "author": "",

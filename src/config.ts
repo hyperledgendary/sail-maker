@@ -7,4 +7,6 @@ export default interface Config {
     input: string;
     output: string;
     template: string;
+    templateDir: string;
+    force: boolean;
 }

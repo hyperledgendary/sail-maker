@@ -1,4 +1,4 @@
-name: omvif-mqtt
+name: sail-maker
 
 on:
   workflow_dispatch:
