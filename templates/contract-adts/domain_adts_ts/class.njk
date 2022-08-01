@@ -1,0 +1,58 @@
+{% macro schema(s) %}
+{% if s.type %}
+   {{s.type  }}
+{% else %} 
+   {{s.$ref | objectname }}
+{% endif %}
+{% endmacro %}
+
+{% macro parameters(params) %}
+{% for p in params -%} {{p.name}}:{{- schema(p.schema) -}}
+    {%- if not loop.last -%}, {% endif -%}
+{%- endfor %}
+{% endmacro %}
+
+{% macro arglist(params) %}
+{% if params %}
+{% for p in params -%} JSON.stringify({{p.name}})
+    {%- if not loop.last -%}, {% endif -%}
+{%- endfor %}
+{%- endif %}
+{% endmacro %}
+
+import { Object as DataType, Property } from 'fabric-contract-api';
+import { State } from 'fabric-data';
+
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ */
+@DataType
+export default class {{ classname | replace(".","_") }}  {
+    
+    // no-arg constructor required
+    public constructor() {
+    }
+   
+    {% for prop in data.properties %}
+    @Property
+    private {{ prop.name }}: {{ prop.schema.type | default(prop.schema.type , 'undefined') }};
+
+    /**
+     * Getter ${{prop.name}}
+     * @return { {{ prop.schema.type }} }
+     */
+    public get ${{prop.name}}(): {{ prop.schema.type |default(prop.schema.type , 'undefined') }} {
+        return this.{{prop.name}};
+    }
+
+    /**
+     * Setter ${{prop.name}}
+     * @param { {{ prop.schema.type }} } value
+     */
+    public set ${{prop.name}}(value: {{ prop.schema.type |default(prop.schema.type , 'undefined') }}) {
+        this.{{prop.name}} = value;
+    }
+    {% endfor %}
+
+}
+
