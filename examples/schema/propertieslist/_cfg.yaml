@@ -1,0 +1,11 @@
+name: domain_adts_ts
+description: Single class of contract
+parts:  
+  - name: Object Definitions
+    inputs: ['metadata']
+    template: class.njk
+    filename: "{{classname}}.ts"
+    filter: >
+      [
+          **.properties ~> $keys()
+      ]

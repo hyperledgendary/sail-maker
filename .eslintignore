@@ -4,7 +4,7 @@ node_modules
 # don't lint build output (make sure it's set to your correct build folder name)
 dist
 lib
-
+templates
 # don't lint nyc coverage output
 coverage
 

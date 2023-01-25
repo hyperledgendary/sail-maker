@@ -28,11 +28,13 @@
   "license": "Apache 2.0",
   "devDependencies": {
     "@tsconfig/node16": "^1.0.3",
+    "@types/gulp": "^4.0.10",
     "@types/jest": "^28.1.4",
     "@types/js-yaml": "^4.0.5",
     "@types/mkdirp": "^1.0.2",
     "@types/node": "^15.14.0",
     "@types/nunjucks": "^3.2.1",
+    "@types/through2": "^2.0.38",
     "@types/ws": "^8.5.3",
     "@typescript-eslint/eslint-plugin": "^5.30.5",
     "@typescript-eslint/parser": "^5.30.5",
@@ -46,11 +48,13 @@
     "ts-node": "^10.8.2",
     "typescript": "^4.3.5"
   },
-  "dependencies": {    
+  "dependencies": {
     "@types/pino": "^7.0.5",
     "@types/source-map-support": "^0.5.4",
     "chalk": "^4.1.2",
     "env-var": "^7.1.1",
+    "gulp": "^4.0.2",
+    "gulp-nunjucks": "^5.1.0",
     "js-yaml": "^4.1.0",
     "jsonata": "^1.8.6",
     "mkdirp": "^1.0.4",
@@ -60,6 +64,7 @@
     "pino-pretty": "^8.1.0",
     "rimraf": "^3.0.2",
     "source-map-support": "^0.5.21",
+    "through2": "^4.0.2",
     "yargs": "^17.5.1"
   },
   "engines": {

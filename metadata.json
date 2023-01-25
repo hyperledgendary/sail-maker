@@ -1,0 +1,206 @@
+{
+    "$schema": "https://hyperledger.github.io/fabric-chaincode-node/main/api/contract-schema.json",
+    "contracts": {
+        "AssetTransferContract": {
+            "name": "AssetTransferContract",
+            "contractInstance": {
+                "name": "AssetTransferContract",
+                "default": true
+            },
+            "transactions": [
+                {
+                    "parameters": [
+                        {
+                            "name": "state",
+                            "description": "",
+                            "schema": {
+                                "$ref": "#/components/schemas/Asset"
+                            }
+                        }
+                    ],
+                    "name": "CreateAsset",
+                    "tag": [
+                        "SUBMIT",
+                        "submitTx"
+                    ]
+                },
+                {
+                    "returns": {
+                        "$ref": "#/components/schemas/Asset"
+                    },
+                    "name": "ReadAsset",
+                    "tag": [
+                        "EVALUATE"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "description": "",
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "parameters": [
+                        {
+                            "name": "assetUpdate",
+                            "description": "",
+                            "schema": {
+                                "$ref": "#/components/schemas/Asset"
+                            }
+                        }
+                    ],
+                    "name": "UpdateAsset",
+                    "tag": [
+                        "SUBMIT",
+                        "submitTx"
+                    ]
+                },
+                {
+                    "tag": [
+                        "SUBMIT",
+                        "submitTx"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "description": "",
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "name": "DeleteAsset"
+                },
+                {
+                    "returns": {
+                        "type": "boolean"
+                    },
+                    "name": "AssetExists",
+                    "tag": [
+                        "EVALUATE"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "description": "",
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "tag": [
+                        "SUBMIT",
+                        "submitTx"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "description": "",
+                            "schema": {
+                                "type": "string"
+                            }
+                        },
+                        {
+                            "name": "newOwner",
+                            "description": "",
+                            "schema": {
+                                "type": "string"
+                            }
+                        },
+                        {
+                            "name": "newOwnerOrg",
+                            "description": "",
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "name": "TransferAsset"
+                },
+                {
+                    "returns": {
+                        "type": "string"
+                    },
+                    "name": "GetAssetHistory",
+                    "tag": [
+                        "EVALUATE"
+                    ],
+                    "parameters": [
+                        {
+                            "name": "id",
+                            "description": "",
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "returns": {
+                        "type": "string"
+                    },
+                    "name": "GetAllAssets",
+                    "tag": [
+                        "EVALUATE"
+                    ],
+                    "parameters": []
+                }
+            ],
+            "info": {
+                "title": "AssetTransfer",
+                "description": "Smart contract for trading assets",
+                "name": "AssetTransferContract",
+                "version": ""
+            }
+        },
+        "org.hyperledger.fabric": {
+            "name": "org.hyperledger.fabric",
+            "contractInstance": {
+                "name": "org.hyperledger.fabric"
+            },
+            "transactions": [
+                {
+                    "name": "GetMetadata"
+                }
+            ],
+            "info": {
+                "title": "",
+                "version": ""
+            }
+        }
+    },
+    "info": {
+        "version": "1.0.0",
+        "title": "asset-transfer"
+    },
+    "components": {
+        "schemas": {
+            "Asset": {
+                "$id": "Asset",
+                "type": "object",
+                "properties": {
+                    "ID": {
+                        "type": "string"
+                    },
+                    "Color": {
+                        "type": "string"
+                    },
+                    "Owner": {
+                        "type": "string"
+                    },
+                    "AppraisedValue": {
+                        "type": "number"
+                    },
+                    "Size": {
+                        "type": "number"
+                    }
+                }
+            }
+        }
+    }
+}

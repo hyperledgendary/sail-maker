@@ -1,0 +1,14 @@
+name: domain_adts_ts
+description: Single class of contract
+parts:  
+  - name: Object Definitions
+    inputs: ['metadata']
+    template: class.njk
+    filename: "{{classname}}.ts"
+    filter: >
+      [
+          metadata.components.schemas.$keys().{
+            "classname":$,
+            "data":$lookup($$.metadata.components.schemas,$)
+          }
+      ]

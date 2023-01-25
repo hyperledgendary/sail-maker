@@ -1,4 +1,3 @@
-'use strict';
 /*
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -14,7 +13,7 @@ import path = require('path');
 import { load } from 'js-yaml';
 
 import { logger } from './logger';
-import Config from './config';
+import { Config } from './config';
 
 interface TemplateCfg {
     cfg: any;
@@ -23,19 +22,20 @@ interface TemplateCfg {
     env: any;
 }
 
+// for the json data
+type AnyMap = {
+    [id: string]: any;
+};
+
 /**
  * Resource Factory
- *
- *
  * Then call start() to produce the documentation
  */
 export default class ResourceFactory {
-    private resolvedFilename: string;
-    private jsonData: any;
-    private templateRoot: string;
+    private jsonData: AnyMap;
     private subTemplateCfgs: TemplateCfg[];
     private outputRoot: string;
-    private templateName: string;
+    private templateRoot: string;
     private force: boolean;
 
     /* Builder method to create an configured instance
@@ -53,19 +53,33 @@ export default class ResourceFactory {
      * @param config
      */
     private constructor(config: Config) {
-        this.resolvedFilename = path.resolve(config.input);
-        logger.info(`Using metadata file ${this.resolvedFilename}`);
-
-        this.jsonData = load(fs.readFileSync(this.resolvedFilename, 'utf8'));
-
-        this.templateRoot = path.join(config.templateDir, config.template);
-        logger.info(`Using the template root at ${this.templateRoot}`);
-        if (!fs.existsSync(this.templateRoot)) {
-            throw new Error(`Unknown template::${this.templateRoot}`);
+        logger.info(`Using the template rooted at ${config.template}`);
+        if (!fs.existsSync(config.template)) {
+            throw new Error(`Unknown template::${config.template}`);
         }
 
+        this.templateRoot = path.resolve(config.template);
+        // if (!fs.existsSync(path.join(this.templateRoot, '_cfg.yaml'))) {
+        //     throw new Error(`Can not locate _cfg.yaml in the tempalte`);
+        // }
+
         this.outputRoot = path.resolve(config.output);
-        this.templateName = config.template;
+
+        // Iterate over the inputs and validate the file is correct
+        // then load the files assuming they are json for moment
+        this.jsonData = {};
+        let property: keyof typeof config.input;
+
+        for (property in config.input) {
+            const filename = path.resolve(config.input[property]);
+            if (!fs.existsSync(filename)) {
+                throw new Error(`Unable to locate ${filename}`);
+            }
+
+            const data = JSON.parse(fs.readFileSync(filename, 'utf8'));
+            this.jsonData[property] = data;
+        }
+
         this.force = config.force;
         this.subTemplateCfgs = [];
     }
@@ -81,15 +95,14 @@ export default class ResourceFactory {
      */
     public async setup(): Promise<void> {
         logger.info(`Using the output directory of ${this.outputRoot}`);
-        logger.info(`Using the output directory of ${this.outputRoot}`);
 
+        // create the output directory cleaning if needed
         const exists = fs.existsSync(this.outputRoot);
         if (!exists) {
             logger.info('Creating output dir');
             await mkdirp(this.outputRoot);
         } else {
             const empty = await this.isDirEmpty();
-            logger.info(`${empty}`);
             if (empty === false) {
                 if (this.force === true) {
                     logger.info('Removing contents');
@@ -101,12 +114,15 @@ export default class ResourceFactory {
             }
         }
 
+        // load up the templates and the hierarchy
         logger.info('Setting up the templates');
         const dir = await fs.promises.opendir(this.templateRoot);
         for await (const dirent of dir) {
-            logger.info(`Handling subdirectory ${dirent.name}`);
-            const subCfg = await this.createSubTemplate(path.join(this.templateRoot, dirent.name));
-            if (subCfg) this.subTemplateCfgs.push(subCfg);
+            if (dirent.isDirectory()) {
+                logger.info(`Handling subdirectory ${dirent.name}`);
+                const subCfg = await this.createSubTemplate(path.join(this.templateRoot, dirent.name));
+                if (subCfg) this.subTemplateCfgs.push(subCfg);
+            }
         }
     }
 
@@ -119,16 +135,15 @@ export default class ResourceFactory {
      */
     private async createSubTemplate(inputpath: string): Promise<TemplateCfg | undefined> {
         // Loop through all the files in the temp directory
-        const inputCfgFile = path.join(inputpath, 'cfg.yaml');
+        const inputCfgFile = path.join(inputpath, '_cfg.yaml');
         if (!fs.existsSync(inputCfgFile)) {
-            logger.warn(`No cfg.yaml found for ${inputpath}`);
+            logger.warn(`No _cfg.yaml found for ${inputpath}`);
             return undefined;
         }
 
         const subName = path.basename(inputpath);
-
-        const outputDir = path.resolve(this.outputRoot, this.templateName, subName);
-        logger.info(`${this.templateName} ${subName} Using the output directory of ${outputDir}`);
+        const outputDir = path.resolve(this.outputRoot, subName);
+        logger.info(`${this.templateRoot} ${subName} Using the output directory of ${outputDir}`);
 
         mkdirp.sync(outputDir);
 
@@ -176,23 +191,20 @@ export default class ResourceFactory {
      */
     private async part(templateCfg: TemplateCfg): Promise<void> {
         const parts = templateCfg.cfg.parts;
-
+        logger.info(`Parts = ${JSON.stringify(parts)}`);
         // todo: change this loop to a better foreach
         parts.forEach((step: any) => {
             // evaluate the JSONata against the input data to get the context needed
-
+            logger.info(`${JSON.stringify(step)}`);
             const expression = jsonata(step['filter']);
             const result = expression.evaluate(templateCfg.data);
-
+            logger.info(`${JSON.stringify(result)}`);
             // Assuming this is an array, iterate over the outputs
-            console.log(result);
+
             result.forEach((action: any) => {
                 const templateFile = step.template;
 
                 const outputFilename = path.join(templateCfg.outputDir, renderString(step.filename, action));
-
-                // writeout the data as well for debug purposes
-                // fs.writeFileSync(path.join(this.output, `data-${action._filename}.json`), JSON.stringify(action._data));
 
                 // render the output, and format is needed
                 const output = render(templateFile, action);

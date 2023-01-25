@@ -7,7 +7,7 @@ import * as sourceMapSupport from 'source-map-support';
 sourceMapSupport.install();
 
 import * as yargs from 'yargs';
-import Config from './config';
+import { Config, MapType } from './config';
 
 import ResourceFactory from './resourcefactory';
 
@@ -20,11 +20,12 @@ const version = JSON.parse(pjson).version;
 
 const results: any = yargs
     .command(['create', '$0'], 'Create resources', {
-        file: {
-            alias: 'f',
+        inputs: {
+            alias: 'i',
             demandOption: true,
-            describe: 'Name of the metadata file (json or yaml) to load',
+            describe: 'List of the files to load as input',
             requiresArg: true,
+            array: true,
         },
         outputdir: {
             alias: 'o',
@@ -39,12 +40,6 @@ const results: any = yargs
             describe: 'Force the outputdirectory to be cleaned if it has contents',
         },
         template: {
-            alias: 't',
-            demandOption: true,
-            describe: 'The name of the template category to process the metadata ',
-            requiresArg: true,
-        },
-        'template-dir': {
             alias: '',
             default: path.resolve(process.cwd(), 'templates'),
             describe: `The directory containing the templates, default is CWD ${path.resolve(
@@ -52,6 +47,11 @@ const results: any = yargs
                 'templates',
             )}`,
             requiresArg: true,
+        },
+        args: {
+            alias: 'a',
+            default: '{}',
+            describe: 'JSON structure of additional data',
         },
     })
     .help()
@@ -61,13 +61,22 @@ const results: any = yargs
     .describe('v', 'show version information')
     .strict().argv;
 
+results.map = results.inputs.reduce((inputMap: MapType, entry: string) => {
+    const parts = entry.split('=');
+    console.log(parts.length);
+    if (parts.length === 2) {
+        inputMap[parts[0]] = parts[1];
+    }
+    return inputMap;
+}, {});
+
 // setup the config here..
 const config: Config = {
-    input: results.file,
+    input: results.map,
     output: results.outputdir,
     template: results.template,
-    templateDir: results['template-dir'],
     force: results.force,
+    args: JSON.parse(results.args),
 };
 
 const main = async (config: Config) => {

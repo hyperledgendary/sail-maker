@@ -1,12 +1,16 @@
-'use strict';
 /*
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-export default interface Config {
-    input: string;
+
+export type MapType = {
+    [id: string]: string;
+};
+
+export interface Config {
+    input: MapType;
     output: string;
     template: string;
-    templateDir: string;
+    args: MapType;
     force: boolean;
 }
