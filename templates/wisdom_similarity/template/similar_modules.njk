@@ -1,0 +1,14 @@
+
+
+# Similar Ansible Modules
+    
+{% for name,item in metadata %}
+## Prompt "{{ item.prompt | replace("name","") | trim }}"
+
+_Used Modules:_
+{% for module, count in item.modules  %}
+- {{module}}  [ {{count}} ]{% endfor %}
+
+{% endfor %}
+
+

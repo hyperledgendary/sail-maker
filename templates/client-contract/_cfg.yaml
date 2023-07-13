@@ -1,5 +1,9 @@
-name: domain_adts_ts
-description: Single class of contract
+
+name: client-contract
+description: Application Contract
+
+root_path: typescript
+
 parts:  
   - name: Object Definitions
     inputs: ['metadata']
